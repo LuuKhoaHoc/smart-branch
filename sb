@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# Universal Smart Branch Launcher
+# Cross-platform launcher cho Smart Branch script
+
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Colors for output (simple fallback)
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Function to detect OS
+detect_os() {
+    case "$(uname -s)" in
+        Linux*)     echo "linux" ;;
+        Darwin*)    echo "mac" ;;
+        CYGWIN*|MINGW*|MSYS*) echo "windows" ;;
+        *)          echo "unknown" ;;
+    esac
+}
+
+# Function to check if we're in Windows Git Bash/WSL
+is_windows_environment() {
+    [[ -n "$WINDIR" ]] || [[ -n "$WSLENV" ]] || [[ "$(uname -r)" == *Microsoft* ]]
+}
+
+# Main launcher logic
+main() {
+    local os=$(detect_os)
+
+    # Special handling for Windows environments
+    if is_windows_environment || [[ "$os" == "windows" ]]; then
+        # Try to run PowerShell script if available
+        local ps_script="$SCRIPT_DIR/smart-branch.ps1"
+        if [[ -f "$ps_script" ]] && command -v powershell.exe >/dev/null 2>&1; then
+            powershell.exe -File "$ps_script" "$@"
+            return $?
+        elif [[ -f "$ps_script" ]] && command -v pwsh >/dev/null 2>&1; then
+            pwsh -File "$ps_script" "$@"
+            return $?
+        fi
+    fi
+
+    # Default to bash script for Linux/Mac
+    local bash_script="$SCRIPT_DIR/smart-branch.sh"
+    if [[ -f "$bash_script" ]]; then
+        if [[ -x "$bash_script" ]]; then
+            "$bash_script" "$@"
+        else
+            # Try to make it executable
+            chmod +x "$bash_script" 2>/dev/null
+            if [[ -x "$bash_script" ]]; then
+                "$bash_script" "$@"
+            else
+                # Fallback to bash execution
+                bash "$bash_script" "$@"
+            fi
+        fi
+    else
+        echo -e "${RED}❌ Lỗi: Không tìm thấy smart-branch.sh${NC}" >&2
+        echo -e "${YELLOW}💡 Đảm bảo bạn đang ở trong thư mục scripts/smart-branch/${NC}" >&2
+        exit 1
+    fi
+}
+
+# Check if script directory exists
+if [[ ! -d "$SCRIPT_DIR" ]]; then
+    echo -e "${RED}❌ Lỗi: Không tìm thấy script directory${NC}" >&2
+    exit 1
+fi
+
+# Run main function
+main "$@"

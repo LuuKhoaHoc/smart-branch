@@ -1,0 +1,200 @@
+# Smart Branch - Git Ignore File
+
+# ===== SENSITIVE DATA =====
+# API keys và configuration files
+config.json
+*.key
+*.secret
+.env
+.env.local
+.env.production
+
+# ===== BACKUP FILES =====
+*.bak
+*.backup
+*.old
+*.orig
+*~
+
+# ===== TEMPORARY FILES =====
+*.tmp
+*.temp
+.tmp/
+temp/
+/tmp/
+
+# ===== LOGS =====
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== OS GENERATED FILES =====
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Icon?
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===== EDITOR GENERATED FILES =====
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# JetBrains IDEs
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ===== DEVELOPMENT FILES =====
+# Node.js (if using any JS tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Python (if using any Python tools)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.env
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ===== BUILD ARTIFACTS =====
+dist/
+build/
+out/
+target/
+
+# ===== TEST FILES =====
+coverage/
+.coverage
+.pytest_cache/
+test-results/
+*.coverage
+.nyc_output
+
+# ===== DOCUMENTATION BUILD =====
+docs/_build/
+docs/site/
+site/
+
+# ===== PACKAGE MANAGERS =====
+# Homebrew
+Brewfile.lock.json
+
+# ===== SMART BRANCH SPECIFIC =====
+# User-specific configuration overrides
+config/local.json
+config/user.json
+
+# Runtime generated files
+ai_suggestions.txt
+/tmp/ai_suggestions.txt
+
+# Demo và test outputs
+demo-output/
+test-branches/
+
+# Installation logs
+install.log
+setup.log
+
+# ===== SECURITY =====
+# SSH keys
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# GPG keys
+*.gpg
+*.asc
+
+# ===== ARCHIVES =====
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.tar
+*.gz
+
+# ===== KEEP CERTAIN FILES =====
+# Ensure template files are included
+!config/*.template
+!config/*.example
+!.github/
+!.github/**
+!docs/
+!examples/
+
+# ===== PROJECT SPECIFIC IGNORES =====
+# Ignore user customizations but keep templates
+config.json
+!config/config.json.template
+
+# Ignore any local testing scripts
+test-local.*
+local-test.*
+my-test.*
