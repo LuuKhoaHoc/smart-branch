@@ -1,6 +1,6 @@
 # Contributing to Smart Branch 🤝
 
-Cảm ơn bạn đã quan tâm đến việc đóng góp cho Smart Branch! Chúng tôi rất hoan nghênh mọi đóng góp từ community.
+Thank you for your interest in contributing to Smart Branch! We welcome all contributions from the community.
 
 ## 📋 Table of Contents
 
@@ -15,22 +15,22 @@ Cảm ơn bạn đã quan tâm đến việc đóng góp cho Smart Branch! Chún
 
 ## Code of Conduct
 
-Dự án này tuân thủ [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/). Bằng cách tham gia, bạn đồng ý tuân theo các quy tắc này.
+This project adheres to the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/). By participating, you agree to follow these rules.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Git
-- Bash 4.0+ (Linux/macOS) hoặc PowerShell 3.0+ (Windows)
-- curl và jq (optional, cho AI features)
-- Tài khoản GitHub
+- Bash 4.0+ (Linux/macOS) or PowerShell 3.0+ (Windows)
+- curl and jq (optional, for AI features)
+- GitHub Account
 
-### Fork và Clone
+### Fork and Clone
 
 ```bash
-# Fork repository trên GitHub
-# Clone fork của bạn
+# Fork the repository on GitHub
+# Clone your fork
 git clone https://github.com/LuuKhoaHoc/smart-branch.git
 cd smart-branch
 
@@ -44,10 +44,10 @@ git remote add upstream https://github.com/original-owner/smart-branch.git
 
 ```bash
 # Setup development environment
-./src/setup-linux.sh
+./install.sh
 
 # Make scripts executable
-chmod +x src/*.sh
+chmod +x /*.sh
 chmod +x sb
 
 # Test installation
@@ -68,31 +68,31 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ### 🐛 Bug Reports
 
-Nếu bạn tìm thấy bug, hãy tạo issue với:
+If you find a bug, please create an issue with:
 
-- **Mô tả chi tiết** về bug
+- **Detailed description** of the bug
 - **Steps to reproduce**
 - **Expected vs actual behavior**
 - **Environment info** (OS, shell, Git version)
-- **Screenshots/logs** nếu có
+- **Screenshots/logs** if available
 
 ### ✨ Feature Requests
 
-Để đề xuất tính năng mới:
+To propose a new feature:
 
-- **Mô tả rõ ràng** về tính năng
-- **Use case** cụ thể
-- **Mockups/examples** nếu có
+- **Clear description** of the feature
+- **Specific use case**
+- **Mockups/examples** if available
 - **Technical considerations**
 
 ### 🔧 Code Contributions
 
-1. **Tìm issue** hoặc tạo issue mới
-2. **Comment** trên issue để thông báo bạn sẽ làm
-3. **Create branch** từ `main`
-4. **Implement changes**
-5. **Test thoroughly**
-6. **Submit Pull Request**
+1.  **Find an issue** or create a new one
+2.  **Comment** on the issue to announce you will work on it
+3.  **Create a branch** from `main`
+4.  **Implement changes**
+5.  **Test thoroughly**
+6.  **Submit a Pull Request**
 
 ## Coding Standards
 
@@ -101,15 +101,15 @@ Nếu bạn tìm thấy bug, hãy tạo issue với:
 ```bash
 #!/bin/bash
 
-# File header với description
-# Author và date
+# File header with description
+# Author and date
 
-# Colors và constants ở đầu file
+# Colors and constants at the top of the file
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-# Functions với clear documentation
+# Functions with clear documentation
 function example_function() {
     local param1=$1
     local param2=$2
@@ -118,7 +118,7 @@ function example_function() {
     echo "Result"
 }
 
-# Main logic ở cuối file
+# Main logic at the end of the file
 main() {
     # Implementation
 }
@@ -129,15 +129,15 @@ main "$@"
 ### PowerShell Scripts
 
 ```powershell
-# File header với description
-# Author và date
+# File header with description
+# Author and date
 
 param(
     [string]$Parameter1,
     [switch]$Help
 )
 
-# Functions với proper error handling
+# Functions with proper error handling
 function Get-ExampleData {
     param([string]$Input)
 
@@ -161,9 +161,9 @@ Main
 
 ### Style Guidelines
 
-- **Indentation**: 4 spaces (không dùng tabs)
+- **Indentation**: 4 spaces (no tabs)
 - **Line length**: Max 100 characters
-- **Comments**: Tiếng Việt cho user-facing, English cho technical
+- **Comments**: Vietnamese for user-facing, English for technical
 - **Variables**: Descriptive names, lowercase with underscores (Bash)
 - **Functions**: PascalCase (PowerShell), snake_case (Bash)
 - **Error handling**: Graceful degradation, informative messages
@@ -176,11 +176,11 @@ Main
 # Test basic functionality
 sb feat 123 "test feature"
 
-# Test AI mode (với API key)
-sb # chọn AI mode
+# Test AI mode (with API key)
+sb # select AI mode
 
 # Test traditional mode
-sb # chọn traditional mode
+sb # select traditional mode
 
 # Test edge cases
 sb invalid_prefix 123 "test"  # should fail
@@ -198,9 +198,9 @@ sb feat 123 ""               # should fail
 ### AI Integration Testing
 
 ```bash
-# Test với valid API key
-# Test với invalid API key
-# Test khi API unavailable
+# Test with valid API key
+# Test with invalid API key
+# Test when API unavailable
 # Test fallback mechanism
 ```
 
@@ -208,19 +208,19 @@ sb feat 123 ""               # should fail
 
 ### Pre-submission Checklist
 
-- [ ] Code tuân thủ style guidelines
-- [ ] Đã test trên multiple platforms
-- [ ] Documentation được update
-- [ ] CHANGELOG.md được update
-- [ ] Commit messages descriptive
-- [ ] No breaking changes (hoặc documented)
+- [ ] Code adheres to style guidelines
+- [ ] Tested on multiple platforms
+- [ ] Documentation is updated
+- [ ] CHANGELOG.md is updated
+- [ ] Commit messages are descriptive
+- [ ] No breaking changes (or documented)
 
 ### PR Template
 
 ```markdown
 ## Description
 
-Brief description của changes
+Brief description of changes
 
 ## Type of Change
 
@@ -239,7 +239,7 @@ Brief description của changes
 
 ## Screenshots
 
-<!-- Nếu có UI changes -->
+<!-- If there are UI changes -->
 
 ## Checklist
 
@@ -251,10 +251,10 @@ Brief description của changes
 
 ### Review Process
 
-1. **Automated checks** sẽ run
-2. **Maintainer review** code và test
-3. **Address feedback** nếu có
-4. **Approved và merged**
+1.  **Automated checks** will run
+2.  **Maintainer reviews** code and tests
+3.  **Address feedback** if any
+4.  **Approved and merged**
 
 ## Issue Guidelines
 
@@ -332,12 +332,12 @@ test(ai): add integration tests for Gemini API
 
 ### Release Process
 
-1. Update version numbers
-2. Update CHANGELOG.md
-3. Create release branch
-4. Final testing
-5. Create GitHub release
-6. Merge to main
+1.  Update version numbers
+2.  Update CHANGELOG.md
+3.  Create release branch
+4.  Final testing
+5.  Create GitHub release
+6.  Merge to main
 
 ## Getting Help
 
@@ -347,10 +347,10 @@ test(ai): add integration tests for Gemini API
 
 ## Recognition
 
-Contributors sẽ được recognition trong:
+Contributors will be recognized in:
 
 - README.md contributors section
 - CHANGELOG.md
 - GitHub releases notes
 
-Cảm ơn bạn đã đóng góp cho Smart Branch! 🎉
+Thank you for contributing to Smart Branch! 🎉

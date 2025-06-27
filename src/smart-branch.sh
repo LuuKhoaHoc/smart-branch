@@ -1,115 +1,92 @@
 #!/bin/bash
 
 # Unified Smart Branch - Git Branch Creation Tool
-# Usage: ./smart-branch.sh
+# ===============================================
+
+# --- Configuration ---
+# Script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/config.json"
+LANG_DIR="$(cd "$SCRIPT_DIR/.." && pwd)/lang"
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
 WHITE='\033[1;37m'
 NC='\033[0m' # No Color
 
-# Script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/config.json"
+# --- Language Setup ---
+LANG="vi" # Default language
 
-# Variables
-HELP=false
+# Function to get translated string
+_t() {
+    local key=$1
+    if [[ "$LANG" == "vi" ]]; then
+        echo -n "${T_VI[$key]}"
+    else
+        echo -n "${T_EN[$key]}"
+    fi
+}
 
-# Parse command line arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        -h|--help)
-            HELP=true
-            shift
-            ;;
-        *)
-            if [[ -z "$PREFIX" ]]; then
-                PREFIX="$1"
-            elif [[ -z "$TICKET_NUMBER" ]]; then
-                TICKET_NUMBER="$1"
-            elif [[ -z "$DESCRIPTION" ]]; then
-                DESCRIPTION="$1"
-            fi
-            shift
-            ;;
-    esac
-done
+# --- Functions ---
 
 # Function to show usage
 show_usage() {
-    echo -e "${CYAN}🚀 === Smart Branch Creator ===${NC}"
+    echo -e "${CYAN}$(_t smart_branch_creator)${NC}"
     echo ""
-    echo -e "${YELLOW}Sử dụng:${NC}"
-    echo "  ./smart-branch.sh                              # Interactive mode với menu chọn"
-    echo "  ./smart-branch.sh [prefix] [ticket] [desc]     # Command line mode với ticket"
-    echo "  ./smart-branch.sh [prefix] [desc]              # Command line mode không ticket"
+    echo -e "${YELLOW}$(_t usage):${NC}"
+    echo "  ./smart-branch.sh                              # $(_t interactive_mode)"
+    echo "  ./smart-branch.sh [prefix] [ticket] [desc]     # $(_t cli_mode_ticket)"
+    echo "  ./smart-branch.sh [prefix] [desc]              # $(_t cli_mode_no_ticket)"
     echo ""
-    echo -e "${YELLOW}Ví dụ:${NC}"
+    echo -e "${YELLOW}$(_t examples):${NC}"
     echo "  ./smart-branch.sh"
     echo "  ./smart-branch.sh feat 123 \"implement user authentication\""
     echo "  ./smart-branch.sh feat \"add new dashboard\""
     echo ""
-    echo -e "${YELLOW}Branch format:${NC}"
-    echo "  Với ticket: feat/username-123_description"
-    echo "  Không ticket: feat/username_description"
+    echo -e "${YELLOW}$(_t branch_format):${NC}"
+    echo "  $(_t with_ticket): feat/username-123_description"
+    echo "  $(_t no_ticket): feat/username_description"
     echo ""
-    echo -e "${YELLOW}Prefix được hỗ trợ:${NC}"
-    echo "  feat, bug, hotfix, sync, refactor, docs, test, chore"
+    echo -e "${YELLOW}$(_t suggested_prefixes):${NC}"
+    echo "  feat, fix, hotfix, docs, style, refactor, test, chore"
 }
 
 # Function to show mode selection menu
 show_mode_selection() {
-    echo -e "${GREEN}🚀 === Smart Branch Creator ===${NC}"
-    echo ""
-    echo -e "${CYAN}Chọn mode:${NC}"
-    echo -e "  [1] ${WHITE}🤖 AI Mode - Smart suggestions với Google Gemini${NC}"
-    echo -e "  [2] ${WHITE}⚡ Traditional Mode - Classic naming${NC}"
-    echo -e "  [3] ${WHITE}❌ Thoát${NC}"
-    echo ""
+    echo -e "${GREEN}$(_t smart_branch_creator)${NC}" >&2
+    echo "" >&2
+    echo -e "${CYAN}$(_t select_mode):${NC}" >&2
+    echo -e "  [1] ${WHITE}$(_t ai_mode)${NC}" >&2
+    echo -e "  [2] ${WHITE}$(_t traditional_mode)${NC}" >&2
+    echo -e "  [3] ${WHITE}$(_t exit)${NC}" >&2
+    echo "" >&2
 
     while true; do
-        read -p "Lựa chọn (1-3): " choice
+        read -p "$(_t choice) (1-3): " choice >&2
         if [[ "$choice" =~ ^[1-3]$ ]]; then
             echo "$choice"
             return
         fi
-        echo -e "${RED}❌ Lựa chọn không hợp lệ. Vui lòng chọn từ 1 đến 3${NC}"
+        echo -e "${RED}❌ $(_t invalid_choice)${NC}" >&2
     done
-}
-
-# Function to validate prefix
-validate_prefix() {
-    local prefix=$1
-    local valid_prefixes=("feat" "bug" "hotfix" "sync" "refactor" "docs" "test" "chore")
-
-    for valid in "${valid_prefixes[@]}"; do
-        if [[ "$prefix" == "$valid" ]]; then
-            return 0
-        fi
-    done
-    return 1
 }
 
 # Function to get git username
 get_git_username() {
     local username=$(git config user.name)
     if [[ -z "$username" ]]; then
-        echo -e "${RED}❌ Lỗi: Không tìm thấy git username. Vui lòng cấu hình git config user.name${NC}"
+        echo -e "${RED}❌ $(_t git_user_error)${NC}" >&2
         exit 1
     fi
-    # Convert to lowercase and replace spaces
-    echo "$username" | tr '[:upper:]' '[:lower:]' | tr ' ' ''
+    echo "$username" | tr '[:upper:]' '[:lower:]' | tr -d ' '
 }
 
 # Function to sanitize description
 sanitize_description() {
     local desc=$1
-    # Convert to lowercase, replace spaces and special chars with hyphens
     echo "$desc" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g'
 }
 
@@ -118,7 +95,6 @@ detect_os() {
     case "$(uname -s)" in
         Linux*)     echo "linux" ;;
         Darwin*)    echo "mac" ;;
-        CYGWIN*|MINGW*|MSYS*) echo "windows" ;;
         *)          echo "unknown" ;;
     esac
 }
@@ -126,40 +102,24 @@ detect_os() {
 # Function to check dependencies
 check_dependencies() {
     local missing_deps=()
-
-    # Check curl
-    if ! command -v curl >/dev/null 2>&1; then
-        missing_deps+=("curl")
-    fi
-
-    # Check jq (optional)
-    if ! command -v jq >/dev/null 2>&1; then
-        echo -e "${YELLOW}⚠️  jq không được cài đặt (optional cho AI features)${NC}"
-    fi
+    if ! command -v curl >/dev/null 2>&1; then missing_deps+=("curl"); fi
+    if ! command -v jq >/dev/null 2>&1; then echo -e "${YELLOW}⚠️  $(_t jq_not_installed)${NC}" >&2; fi
 
     if [[ ${#missing_deps[@]} -gt 0 ]]; then
-        echo -e "${YELLOW}⚠️  Thiếu dependencies: ${missing_deps[*]}${NC}"
-        echo -e "${CYAN}💡 Trên Linux, chạy: ./setup-linux.sh để tự động cài đặt${NC}"
-
+        echo -e "${YELLOW}⚠️  $(_t missing_deps): ${missing_deps[*]}${NC}" >&2
+        echo -e "${CYAN}💡 $(_t run_install)${NC}" >&2
         local os=$(detect_os)
-        case "$os" in
-            "linux")
-                echo -e "${CYAN}💡 Hoặc cài đặt thủ công:${NC}"
-                if command -v pacman >/dev/null 2>&1; then
-                    echo "  sudo pacman -S ${missing_deps[*]}"
-                elif command -v apt >/dev/null 2>&1; then
-                    echo "  sudo apt install ${missing_deps[*]}"
-                elif command -v dnf >/dev/null 2>&1; then
-                    echo "  sudo dnf install ${missing_deps[*]}"
-                elif command -v yum >/dev/null 2>&1; then
-                    echo "  sudo yum install ${missing_deps[*]}"
-                fi
-                ;;
-            "mac")
-                echo -e "${CYAN}💡 Trên macOS:${NC}"
-                echo "  brew install ${missing_deps[*]}"
-                ;;
-        esac
+        if [[ "$os" == "linux" ]]; then
+            echo -e "${CYAN}💡 $(_t manual_install):${NC}" >&2
+            if command -v pacman >/dev/null 2>&1; then echo "  sudo pacman -S ${missing_deps[*]}" >&2
+            elif command -v apt >/dev/null 2>&1; then echo "  sudo apt install ${missing_deps[*]}" >&2
+            elif command -v dnf >/dev/null 2>&1; then echo "  sudo dnf install ${missing_deps[*]}" >&2
+            elif command -v yum >/dev/null 2>&1; then echo "  sudo yum install ${missing_deps[*]}" >&2
+            fi
+        elif [[ "$os" == "mac" ]]; then
+            echo -e "${CYAN}💡 $(_t on_macos):${NC}" >&2
+            echo "  brew install ${missing_deps[*]}" >&2
+        fi
         return 1
     fi
     return 0
@@ -168,7 +128,7 @@ check_dependencies() {
 # Function to load configuration
 load_config() {
     if [[ ! -f "$CONFIG_FILE" ]]; then
-        echo -e "${YELLOW}⚠️  Không tìm thấy file config.json. Tạo file mặc định...${NC}"
+        echo -e "${YELLOW}⚠️  $(_t config_not_found)${NC}" >&2
         cat > "$CONFIG_FILE" << 'EOF'
 {
   "ai_provider": "gemini",
@@ -180,7 +140,7 @@ load_config() {
   "enabled": true
 }
 EOF
-        echo -e "${GREEN}📁 Đã tạo file config.json. Vui lòng cập nhật API key trong file này.${NC}"
+        echo -e "${GREEN}📁 $(_t config_created)${NC}" >&2
     fi
 }
 
@@ -190,18 +150,13 @@ get_config_value() {
     if command -v jq >/dev/null 2>&1; then
         jq -r ".$key // empty" "$CONFIG_FILE" 2>/dev/null
     else
-        # Fallback parser for systems without jq
         grep "\"$key\"" "$CONFIG_FILE" | sed 's/.*"'$key'": *"\([^"]*\)".*/\1/' | head -1
     fi
 }
 
-# Function to call Gemini API for branch name suggestions
+# Function to call Gemini API
 get_ai_suggestions() {
-    local prefix=$1
-    local ticket=$2
-    local description=$3
-    local username=$4
-
+    local prefix=$1 ticket=$2 description=$3 username=$4
     local api_key=$(get_config_value "api_key")
     local enabled=$(get_config_value "enabled")
     local endpoint=$(get_config_value "endpoint")
@@ -209,106 +164,68 @@ get_ai_suggestions() {
     local max_tokens=$(get_config_value "max_tokens")
 
     if [[ -z "$api_key" || "$enabled" != "true" ]]; then
-        echo -e "${YELLOW}⚠️  AI không được cấu hình hoặc tắt. Sử dụng tên nhánh truyền thống.${NC}"
+        echo -e "${YELLOW}⚠️  $(_t ai_disabled)${NC}" >&2
         return 1
     fi
 
-    echo -e "${CYAN}🤖 Đang gọi AI để tạo gợi ý tên nhánh...${NC}"
+    echo -e "${CYAN}$(_t calling_ai)${NC}" >&2
 
-    # Create prompt based on whether ticket number exists
-    local branch_format
-    local example_formats
-    local ticket_info
-
+    local branch_format ticket_info example_formats
     if [[ -z "$ticket" ]]; then
         branch_format="{prefix}/{username}_{description}"
-        example_formats="feat/username_add-user-auth
-feat/username_implement-login-system
-feat/username_create-auth-module"
-        ticket_info="- Ticket: Không có (optional)"
+        example_formats="feat/username_add-user-auth"
+        ticket_info="- Ticket: $(_t no_ticket) (optional)"
     else
         branch_format="{prefix}/{username}-{ticket}_{description}"
-        example_formats="feat/username-123_add-user-auth
-feat/username-123_implement-login-system
-feat/username-123_create-auth-module"
+        example_formats="feat/username-123_add-user-auth"
         ticket_info="- Ticket: $ticket"
     fi
 
-    local prompt="Bạn là chuyên gia Git branch naming. Dựa vào thông tin sau:
+    local prompt="Bạn là AI chuyên gia đặt tên nhánh Git. Hãy tạo CHÍNH XÁC 5 tên nhánh phù hợp với thông tin sau, mỗi dòng 1 tên, KHÔNG thêm bất kỳ giải thích, text hoặc ký tự nào khác ngoài 5 tên nhánh:
 - Prefix: $prefix
 $ticket_info
 - Mô tả task: $description
 - Username: $username
 
-Tạo CHÍNH XÁC 3 tên nhánh theo format: $branch_format
+Định dạng: $branch_format
 
-Yêu cầu:
-- Mô tả phần description ngắn gọn, rõ ràng, thể hiện đúng mục đích
-- Sử dụng kebab-case cho description
-- Tối đa 50 ký tự cho toàn bộ tên nhánh
-- Mỗi option phải khác nhau về cách diễn đạt
-- Chỉ trả về 3 dòng, mỗi dòng 1 tên nhánh, không có text khác
-
-Ví dụ format:
+Ví dụ:
 $example_formats"
 
-    local json_payload=$(cat << EOF
-{
-  "contents": [
-    {
-      "parts": [
-        {
-          "text": "$prompt"
-        }
-      ]
-    }
-  ],
-  "generationConfig": {
-    "temperature": ${temperature:-0.7},
-    "maxOutputTokens": ${max_tokens:-150}
-  }
-}
-EOF
-)
+    local json_payload
+    json_payload=$(printf '{"contents":[{"parts":[{"text":"%s"}]}],"generationConfig":{"temperature":%s,"maxOutputTokens":%s}}' "$prompt" "${temperature:-0.7}" "${max_tokens:-150}")
 
     local response
     if command -v curl >/dev/null 2>&1; then
-        response=$(curl -s -X POST \
-            -H "Content-Type: application/json" \
-            -d "$json_payload" \
-            "$endpoint?key=$api_key" 2>/dev/null)
+        response=$(curl -s -X POST -H "Content-Type: application/json" -d "$json_payload" "$endpoint?key=$api_key" 2>/dev/null)
     else
-        echo -e "${RED}❌ curl không được cài đặt. Không thể gọi AI API.${NC}"
+        echo -e "${RED}❌ $(_t curl_not_installed)${NC}" >&2
         return 1
     fi
 
     if [[ $? -ne 0 || -z "$response" ]]; then
-        echo -e "${RED}❌ Lỗi khi gọi AI API${NC}"
+        echo -e "${RED}❌ $(_t ai_api_error)${NC}" >&2
         return 1
     fi
 
-    # Parse response and extract suggestions
     local suggestions
     if command -v jq >/dev/null 2>&1; then
         suggestions=$(echo "$response" | jq -r '.candidates[0].content.parts[0].text // empty' 2>/dev/null)
     else
-        # Simple fallback parsing
         suggestions=$(echo "$response" | grep -o '"text"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/"text"[[:space:]]*:[[:space:]]*"\(.*\)"/\1/' | head -1)
     fi
 
     if [[ -n "$suggestions" ]]; then
-        # Save suggestions to temporary file
-        echo "$suggestions" | grep -E '^[a-z]+\/[a-z0-9\-_]+$' | head -3 > /tmp/ai_suggestions.txt
-
+        echo "$suggestions" | grep -E '^[a-z]+/[a-z0-9_-]+$' | head -5 > /tmp/ai_suggestions.txt
         local count=$(wc -l < /tmp/ai_suggestions.txt)
-        if [[ $count -eq 3 ]]; then
+        if [[ $count -eq 5 ]]; then
             return 0
         else
-            echo -e "${YELLOW}⚠️  AI trả về số lượng gợi ý không đúng ($count/3). Fallback về tên truyền thống.${NC}"
+            echo -e "${YELLOW}⚠️  $(_t ai_suggestion_count_error) ($count/5). $(_t ai_fallback)${NC}" >&2
             return 1
         fi
     else
-        echo -e "${YELLOW}⚠️  AI không trả về kết quả hợp lệ. Fallback về tên truyền thống.${NC}"
+        echo -e "${YELLOW}⚠️  $(_t ai_invalid_result)${NC}" >&2
         return 1
     fi
 }
@@ -316,294 +233,196 @@ EOF
 # Function to display and select branch option
 select_branch_option() {
     local traditional_name=$1
+    echo "" >&2
+    echo -e "${GREEN}$(_t select_branch_name):${NC}" >&2
+    echo "" >&2
 
-    echo ""
-    echo -e "${GREEN}🎯 Chọn tên nhánh:${NC}"
-    echo ""
-
-    local options=()
-    local index=1
-
-    # Add AI suggestions if available
+    local options=() index=1
     if [[ -f /tmp/ai_suggestions.txt ]]; then
         while IFS= read -r suggestion; do
-            echo -e "  [$index] ${WHITE}$suggestion${NC}"
+            echo -e "  [$index] ${WHITE}$suggestion${NC}" >&2
             options+=("$suggestion")
             ((index++))
         done < /tmp/ai_suggestions.txt
     fi
 
-    # Add traditional option
-    echo -e "  [$index] ${YELLOW}$traditional_name (truyền thống)${NC}"
+    echo -e "  [$index] ${YELLOW}$traditional_name ($(_t traditional_option))${NC}" >&2
     options+=("$traditional_name")
     ((index++))
+    echo -e "  [$index] ${CYAN}$(_t other_branch_name)${NC}" >&2
+    echo "" >&2
 
-    # Add manual input option
-    echo -e "  [$index] ${CYAN}Nhập tên nhánh khác${NC}"
-    echo ""
-
+    local max_choice=$index
     local choice
     while true; do
-        read -p "Lựa chọn (1-$index): " choice
-        if [[ "$choice" =~ ^[0-9]+$ ]] && [[ $choice -ge 1 ]] && [[ $choice -le $index ]]; then
-            if [[ $choice -eq $index ]]; then
-                # Manual input
+        read -p "$(_t choice) (1-$max_choice): " choice >&2
+        if [[ "$choice" =~ ^[0-9]+$ ]] && [[ $choice -ge 1 ]] && [[ $choice -le $max_choice ]]; then
+            if [[ $choice -eq $max_choice ]]; then
                 while true; do
-                    read -p "Nhập tên nhánh: " custom_name
-                    if [[ -n "$custom_name" ]]; then
-                        echo "$custom_name"
-                        return
-                    fi
-                    echo -e "${RED}❌ Tên nhánh không được để trống${NC}"
+                    read -p "$(_t enter_branch_name): " custom_name >&2
+                    if [[ -n "$custom_name" ]]; then echo "$custom_name"; return; fi
+                    echo -e "${RED}❌ $(_t branch_name_empty)${NC}" >&2
                 done
             else
-                # Selected from options
-                echo "${options[$((choice-1))]}"
-                return
+                echo "${options[$((choice-1))]}"; return
             fi
         fi
-        echo -e "${RED}❌ Lựa chọn không hợp lệ. Vui lòng chọn từ 1 đến $index${NC}"
+        echo -e "${RED}❌ $(_t invalid_choice)${NC}" >&2
     done
 }
 
 # Function to get input interactively
 get_interactive_input() {
-    echo -e "${YELLOW}📝 Nhập thông tin nhánh:${NC}"
-
-    # Get prefix
+    echo -e "${YELLOW}$(_t enter_branch_info):${NC}" >&2
+    echo -e "${CYAN}$(_t prefix_suggestions): feat, bug, hotfix, docs, style, refactor, test, chore${NC}" >&2
+    read -p "$(_t prefix_prompt): " PREFIX >&2
+    read -p "$(_t ticket_prompt): " TICKET_NUMBER >&2
     while true; do
-        read -p "Prefix (feat/bug/hotfix/sync/refactor/docs/test/chore): " PREFIX
-        if validate_prefix "$PREFIX"; then
-            break
-        else
-            echo -e "${RED}❌ Prefix không hợp lệ. Vui lòng chọn: feat, bug, hotfix, sync, refactor, docs, test, chore${NC}"
-        fi
-    done
-
-    # Get ticket number (optional)
-    read -p "Ticket number (optional, nhấn Enter để skip): " TICKET_NUMBER
-    # Remove validation - ticket number is now optional
-
-    # Get description
-    while true; do
-        read -p "Mô tả chi tiết task (VD: implement user authentication system): " DESCRIPTION
-        if [[ -n "$DESCRIPTION" ]]; then
-            break
-        else
-            echo -e "${RED}❌ Mô tả không được để trống${NC}"
-        fi
+        read -p "$(_t desc_prompt): " DESCRIPTION >&2
+        if [[ -n "$DESCRIPTION" ]]; then break; fi
+        echo -e "${RED}❌ $(_t desc_empty)${NC}" >&2
     done
 }
 
 # Function to run AI mode
 run_ai_mode() {
-    local prefix=$1
-    local ticket=$2
-    local description=$3
-    local username=$4
-
-    echo ""
-    echo -e "${GREEN}🤖 AI Mode được chọn!${NC}"
-    echo ""
-
-    # Load configuration
+    local prefix=$1 ticket=$2 description=$3 username=$4
+    echo "" >&2; echo -e "${GREEN}$(_t ai_mode_selected)${NC}" >&2; echo "" >&2
     load_config
-
-    # Create traditional branch name as fallback
     local sanitized_desc=$(sanitize_description "$description")
     local traditional_branch_name
-    if [[ -z "$ticket" ]]; then
-        traditional_branch_name="${prefix}/${username}_${sanitized_desc}"
-    else
-        traditional_branch_name="${prefix}/${username}-${ticket}_${sanitized_desc}"
-    fi
+    if [[ -z "$ticket" ]]; then traditional_branch_name="${prefix}/${username}_${sanitized_desc}"; else traditional_branch_name="${prefix}/${username}-${ticket}_${sanitized_desc}"; fi
     local selected_branch_name="$traditional_branch_name"
-
-    # Get AI suggestions if enabled
     local enabled=$(get_config_value "enabled")
     if [[ "$enabled" == "true" ]]; then
         if get_ai_suggestions "$prefix" "$ticket" "$description" "$username"; then
             selected_branch_name=$(select_branch_option "$traditional_branch_name")
         else
-            echo -e "${YELLOW}💡 Sử dụng tên nhánh truyền thống: $traditional_branch_name${NC}"
+            echo -e "${YELLOW}💡 $(_t using_traditional_branch_name): $traditional_branch_name${NC}" >&2
         fi
     else
-        echo -e "${YELLOW}💡 Tên nhánh truyền thống: $traditional_branch_name${NC}"
+        echo -e "${YELLOW}💡 $(_t using_traditional_branch_name): $traditional_branch_name${NC}" >&2
     fi
-
     echo "$selected_branch_name"
 }
 
 # Function to run traditional mode
 run_traditional_mode() {
-    local prefix=$1
-    local ticket=$2
-    local description=$3
-    local username=$4
-
-    echo ""
-    echo -e "${GREEN}⚡ Traditional Mode được chọn!${NC}"
-    echo ""
-
-    # Sanitize description
+    local prefix=$1 ticket=$2 description=$3 username=$4
+    echo "" >&2; echo -e "${GREEN}$(_t traditional_mode_selected)${NC}" >&2; echo "" >&2
     local sanitized_desc=$(sanitize_description "$description")
     local branch_name
-    if [[ -z "$ticket" ]]; then
-        branch_name="${prefix}/${username}_${sanitized_desc}"
-    else
-        branch_name="${prefix}/${username}-${ticket}_${sanitized_desc}"
-    fi
-
-    echo -e "${YELLOW}💡 Tên nhánh truyền thống: $branch_name${NC}"
-
+    if [[ -z "$ticket" ]]; then branch_name="${prefix}/${username}_${sanitized_desc}"; else branch_name="${prefix}/${username}-${ticket}_${sanitized_desc}"; fi
+    echo -e "${YELLOW}💡 $(_t using_traditional_branch_name): $branch_name${NC}" >&2
     echo "$branch_name"
 }
 
 # Function to create branch
 create_git_branch() {
     local branch_name=$1
-
-    echo ""
-    echo -e "${GREEN}🎯 Tên nhánh được chọn:${NC} ${WHITE}$branch_name${NC}"
-    echo ""
-
-    # Confirm before creating
-    read -p "✅ Xác nhận tạo nhánh? (y/N): " confirm
+    echo ""; echo -e "${GREEN}$(_t branch_name_selected):${NC} ${WHITE}$branch_name${NC}"; echo ""
+    local confirm
+    read -p "$(_t confirm_creation) " confirm
     if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-        echo -e "${YELLOW}❌ Đã hủy tạo nhánh${NC}"
-        return
+        echo -e "${YELLOW}$(_t creation_cancelled)${NC}"; return
     fi
-
-    # Check if branch already exists
     if git show-ref --verify --quiet refs/heads/"$branch_name"; then
-        echo -e "${RED}❌ Lỗi: Nhánh '$branch_name' đã tồn tại${NC}"
-        exit 1
+        echo -e "${RED}❌ $(_t branch_exists_error) '$branch_name' $(_t branch_exists_error2)${NC}"; exit 1
     fi
-
-    # Create and checkout new branch
-    echo -e "${GREEN}🔄 Đang tạo nhánh...${NC}"
+    echo -e "${GREEN}$(_t creating_branch)${NC}"
     if git checkout -b "$branch_name"; then
-        echo ""
-        echo -e "${GREEN}✅ Đã tạo và chuyển sang nhánh '$branch_name' thành công!${NC}"
-        echo ""
-        echo -e "${YELLOW}📋 Lưu ý:${NC}"
-        echo "- Một PR chỉ làm đúng 1 việc của 1 ticket duy nhất"
-        echo "- Sử dụng git rebase khi merge code từ staging/master"
-        echo "- File không được quá 400 dòng code"
-        echo "- Folder name phải ở dạng số nhiều (trừ app/pages)"
-        echo ""
-        echo -e "${MAGENTA}🎉 Happy coding!${NC}"
+        echo ""; echo -e "${GREEN}✅ $(_t branch_created_success) '$branch_name' $(_t branch_created_success2)${NC}"; echo ""
+        echo -e "${YELLOW}$(_t notes):${NC}"; echo "$(_t note1)"; echo "$(_t note2)"; echo "$(_t note3)"; echo "$(_t note4)"; echo ""
+        echo -e "${MAGENTA}$(_t happy_coding)${NC}"
     else
-        echo -e "${RED}❌ Lỗi: Không thể tạo nhánh '$branch_name'${NC}"
-        exit 1
+        echo -e "${RED}❌ $(_t creation_failed) '$branch_name'${NC}"; exit 1
     fi
-
-    # Cleanup
     [[ -f /tmp/ai_suggestions.txt ]] && rm -f /tmp/ai_suggestions.txt
 }
 
-# Main script logic
+# --- Main Script Logic ---
 main() {
-    # Show help if requested
-    if [[ "$HELP" == true ]]; then
-        show_usage
-        return
+    # --- Language Selection ---
+    if [[ -z "$SB_LANG" ]]; then
+        echo "Please select a language / Vui lòng chọn ngôn ngữ:"
+        echo "  [1] English"
+        echo "  [2] Vietnamese"
+        local lang_choice
+        while true; do
+            read -p "Choice (1-2): " lang_choice
+            if [[ "$lang_choice" == "1" ]]; then LANG="en"; break;
+            elif [[ "$lang_choice" == "2" ]]; then LANG="vi"; break;
+            else echo "Invalid choice. Please enter 1 or 2."; fi
+        done
+    else
+        LANG="$SB_LANG"
     fi
 
-    # Check dependencies
-    if ! check_dependencies; then
-        echo -e "${YELLOW}⚠️  Một số dependencies thiếu, nhưng script vẫn có thể hoạt động${NC}"
-        echo ""
+    # Source the language file
+    if [ -f "$LANG_DIR/$LANG.sh" ]; then
+        source "$LANG_DIR/$LANG.sh"
+    else
+        echo "Error: Language file $LANG_DIR/$LANG.sh not found."
+        exit 1
     fi
-
-    # Get git username
-    local username=$(get_git_username)
-    echo -e "${GREEN}👤 Git username:${NC} $username"
     echo ""
 
-    # Auto-detect command line arguments format
+    # Parse command line arguments
+    local PREFIX TICKET_NUMBER DESCRIPTION HELP=false
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -h|--help) HELP=true; shift ;;
+            *)
+                if [[ -z "$PREFIX" ]]; then PREFIX="$1"
+                elif [[ -z "$TICKET_NUMBER" ]]; then TICKET_NUMBER="$1"
+                elif [[ -z "$DESCRIPTION" ]]; then DESCRIPTION="$1"
+                fi; shift ;;
+        esac
+    done
+
+    if [[ "$HELP" == true ]]; then show_usage; return; fi
+    if ! check_dependencies; then echo -e "${YELLOW}⚠️  $(_t deps_missing_warning)${NC}" >&2; echo "" >&2; fi
+
+    local username=$(get_git_username)
+    echo -e "${GREEN}$(_t git_username):${NC} $username" >&2; echo "" >&2
+
     if [[ -n "$PREFIX" && -n "$TICKET_NUMBER" ]]; then
-        # Check if second param is actually a ticket number (numeric) or description
-        if [[ "$TICKET_NUMBER" =~ ^[0-9]+$ ]]; then
-            # Format: sb feat 123 "description"
-            # TICKET_NUMBER is actually a ticket number
-            if [[ -z "$DESCRIPTION" ]]; then
-                echo -e "${RED}❌ Lỗi: Thiếu description khi sử dụng format có ticket number${NC}"
-                show_usage
-                exit 1
-            fi
-        else
-            # Format: sb feat "description" (no ticket)
-            # TICKET_NUMBER is actually description, shift parameters
-            DESCRIPTION="$TICKET_NUMBER"
-            TICKET_NUMBER=""
+        if ! [[ "$TICKET_NUMBER" =~ ^[0-9]+$ ]]; then
+            DESCRIPTION="$TICKET_NUMBER"; TICKET_NUMBER=""
+        elif [[ -z "$DESCRIPTION" ]]; then
+            echo -e "${RED}❌ $(_t desc_missing_error)${NC}" >&2; show_usage; exit 1
         fi
     fi
 
-    # Check if arguments provided
+    local mode_choice
     if [[ -z "$PREFIX" || -z "$DESCRIPTION" ]]; then
-        # Interactive mode - show mode selection
-        local mode_choice=$(show_mode_selection)
-
-        if [[ $mode_choice -eq 3 ]]; then
-            echo -e "${CYAN}👋 Tạm biệt!${NC}"
-            return
-        fi
-
-        # Get input interactively
+        mode_choice=$(show_mode_selection)
+        if [[ $mode_choice -eq 3 ]]; then echo -e "${CYAN}$(_t goodbye)${NC}" >&2; return; fi
         get_interactive_input
     else
-        # Command line mode - ask for mode selection
-        echo -e "${GREEN}🚀 === Smart Branch Creator ===${NC}"
-        echo ""
-        echo -e "${CYAN}Chọn mode cho thông tin đã nhập:${NC}"
-        echo -e "  Prefix: ${WHITE}$PREFIX${NC}"
-
-        if [[ -z "$TICKET_NUMBER" ]]; then
-            echo -e "  Ticket: ${WHITE}Không có${NC}"
-        else
-            echo -e "  Ticket: ${WHITE}$TICKET_NUMBER${NC}"
-        fi
-
-        echo -e "  Description: ${WHITE}$DESCRIPTION${NC}"
-        echo ""
-        echo -e "  [1] ${WHITE}🤖 AI Mode - Smart suggestions${NC}"
-        echo -e "  [2] ${WHITE}⚡ Traditional Mode - Classic naming${NC}"
-        echo -e "  [3] ${WHITE}❌ Thoát${NC}"
-        echo ""
-
+        echo -e "${GREEN}$(_t smart_branch_creator)${NC}" >&2; echo "" >&2
+        echo -e "${CYAN}$(_t mode_for_info):${NC}" >&2
+        echo -e "  Prefix: ${WHITE}$PREFIX${NC}" >&2
+        if [[ -z "$TICKET_NUMBER" ]]; then echo -e "  Ticket: ${WHITE}$(_t no_ticket)${NC}" >&2; else echo -e "  Ticket: ${WHITE}$TICKET_NUMBER${NC}" >&2; fi
+        echo -e "  Description: ${WHITE}$DESCRIPTION${NC}" >&2; echo "" >&2
+        echo -e "  [1] ${WHITE}$(_t ai_mode)${NC}" >&2
+        echo -e "  [2] ${WHITE}$(_t traditional_mode)${NC}" >&2
+        echo -e "  [3] ${WHITE}$(_t exit)${NC}" >&2; echo "" >&2
         while true; do
-            read -p "Lựa chọn (1-3): " mode_choice
-            if [[ "$mode_choice" =~ ^[1-3]$ ]]; then
-                break
-            fi
-            echo -e "${RED}❌ Lựa chọn không hợp lệ. Vui lòng chọn từ 1 đến 3${NC}"
+            read -p "$(_t choice) (1-3): " mode_choice >&2
+            if [[ "$mode_choice" =~ ^[1-3]$ ]]; then break; fi
+            echo -e "${RED}❌ $(_t invalid_choice)${NC}" >&2
         done
-
-        if [[ $mode_choice -eq 3 ]]; then
-            echo -e "${CYAN}👋 Tạm biệt!${NC}"
-            return
-        fi
-
-        # Validate prefix when using command line arguments
-        if ! validate_prefix "$PREFIX"; then
-            echo -e "${RED}❌ Lỗi: Prefix '$PREFIX' không hợp lệ${NC}"
-            show_usage
-            exit 1
-        fi
+        if [[ $mode_choice -eq 3 ]]; then echo -e "${CYAN}$(_t goodbye)${NC}" >&2; return; fi
     fi
 
-    # Execute based on mode choice
     local selected_branch_name=""
     if [[ $mode_choice -eq 1 ]]; then
-        # AI Mode
         selected_branch_name=$(run_ai_mode "$PREFIX" "$TICKET_NUMBER" "$DESCRIPTION" "$username")
     elif [[ $mode_choice -eq 2 ]]; then
-        # Traditional Mode
         selected_branch_name=$(run_traditional_mode "$PREFIX" "$TICKET_NUMBER" "$DESCRIPTION" "$username")
     fi
 
-    # Create the branch
     create_git_branch "$selected_branch_name"
 }
 

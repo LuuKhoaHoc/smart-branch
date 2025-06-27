@@ -1,10 +1,10 @@
 # Usage Guide 📖
 
-Hướng dẫn chi tiết cách sử dụng Smart Branch để tạo Git branches một cách hiệu quả.
+A detailed guide on how to use Smart Branch to create Git branches effectively.
 
 ## 🎯 Basic Usage
 
-### Command duy nhất cần nhớ:
+### The only command you need to remember:
 
 ```bash
 sb
@@ -12,17 +12,17 @@ sb
 
 ## 🎪 Command Formats
 
-Smart Branch hỗ trợ nhiều formats linh hoạt:
+Smart Branch supports multiple flexible formats:
 
 ```bash
 # Interactive mode - menu selection
 sb
 
-# Command line với ticket number
+# Command line with ticket number
 sb feat 123 "implement user authentication"
 sb bug 456 "fix login redirect issue"
 
-# Command line không ticket number
+# Command line without ticket number
 sb feat "add new dashboard feature"
 sb refactor "optimize database queries"
 
@@ -35,60 +35,60 @@ sb -Help         # Windows
 
 ### Menu Selection
 
-Khi chạy `sb` không có arguments, bạn sẽ thấy menu:
+When you run `sb` without arguments, you will see a menu:
 
 ```
 🚀 === Smart Branch Creator ===
 
-Chọn mode:
-  [1] 🤖 AI Mode - Smart suggestions với Google Gemini
+Select mode:
+  [1] 🤖 AI Mode - Smart suggestions with Google Gemini
   [2] ⚡ Traditional Mode - Classic naming
-  [3] ❌ Thoát
+  [3] ❌ Exit
 
-Lựa chọn (1-3):
+Selection (1-3):
 ```
 
 ### Input Flow
 
-1. **Chọn Mode** (AI hoặc Traditional)
-2. **Nhập Prefix** (feat, bug, hotfix, etc.)
-3. **Nhập Ticket Number** (optional)
-4. **Nhập Description** (required)
-5. **Chọn Branch Name** (từ AI suggestions hoặc traditional)
+1. **Select Mode** (AI or Traditional)
+2. **Enter Prefix** (feat, bug, hotfix, etc.)
+3. **Enter Ticket Number** (optional)
+4. **Enter Description** (required)
+5. **Select Branch Name** (from AI suggestions or traditional)
 6. **Confirm Creation**
 
 ### Example Interactive Session
 
 ```
-📝 Nhập thông tin nhánh:
+📝 Enter branch information:
 Prefix (feat/bug/hotfix/sync/refactor/docs/test/chore): feat
-Ticket number (optional, nhấn Enter để skip): 123
-Mô tả chi tiết task: implement user login system
+Ticket number (optional, press Enter to skip): 123
+Detailed task description: implement user login system
 
-🤖 Đang gọi AI để tạo gợi ý...
+🤖 Calling AI for suggestions...
 
-🎯 Chọn tên nhánh:
+🎯 Select branch name:
   [1] feat/username-123_implement-user-login
   [2] feat/username-123_add-auth-system
   [3] feat/username-123_create-login-feature
-  [4] feat/username-123_implement-user-login-system (truyền thống)
-  [5] Nhập tên nhánh khác
+  [4] feat/username-123_implement-user-login-system (traditional)
+  [5] Enter a different branch name
 
-Lựa chọn (1-5): 1
+Selection (1-5): 1
 
-🎯 Tên nhánh được chọn: feat/username-123_implement-user-login
+🎯 Selected branch name: feat/username-123_implement-user-login
 
-✅ Xác nhận tạo nhánh? (y/N): y
+✅ Confirm branch creation? (y/N): y
 
-🔄 Đang tạo nhánh...
-✅ Đã tạo và chuyển sang nhánh 'feat/username-123_implement-user-login' thành công!
+🔄 Creating branch...
+✅ Successfully created and switched to branch 'feat/username-123_implement-user-login'!
 ```
 
 ## ⚡ Command Line Mode
 
 ### Format Detection
 
-Smart Branch tự động detect format based on arguments:
+Smart Branch automatically detects the format based on arguments:
 
 ```bash
 # 3 arguments = prefix + ticket + description
@@ -97,7 +97,7 @@ sb feat 123 "implement feature"
 # 2 arguments = prefix + description (no ticket)
 sb feat "implement feature"
 
-# Invalid - sẽ hiển thị error và usage
+# Invalid - will show an error and usage
 sb feat
 ```
 
@@ -118,11 +118,11 @@ sb feat
 
 ### Google Gemini Integration
 
-AI Mode sử dụng Google Gemini để:
+AI Mode uses Google Gemini to:
 
-- Phân tích description
-- Tạo 3 gợi ý tên nhánh khác nhau
-- Optimize cho readability và convention
+- Analyze the description
+- Generate 3 different branch name suggestions
+- Optimize for readability and conventions
 
 ### AI vs Traditional Comparison
 
@@ -135,7 +135,7 @@ sb feat 123 "implement user authentication with OAuth2"
 [1] feat/username-123_implement-oauth2-auth
 [2] feat/username-123_add-user-authentication
 [3] feat/username-123_create-oauth2-login
-[4] feat/username-123_implement-user-authentication-with-oauth2 (truyền thống)
+[4] feat/username-123_implement-user-authentication-with-oauth2 (traditional)
 ```
 
 **Traditional Mode output:**
@@ -149,11 +149,11 @@ feat/username-123_implement-user-authentication-with-oauth2
 
 ### AI Fallback
 
-AI Mode tự động fallback về Traditional Mode khi:
+AI Mode automatically falls back to Traditional Mode when:
 
-- API key không được cấu hình
-- Network connection fail
-- API limit reached
+- The API key is not configured
+- Network connection fails
+- API limit is reached
 - Invalid API response
 
 ## 🎨 Branch Naming Convention
@@ -184,7 +184,7 @@ AI Mode tự động fallback về Traditional Mode khi:
 
 ### Username Processing
 
-Username được lấy từ `git config user.name` và processed:
+The username is taken from `git config user.name` and processed:
 
 - Convert to lowercase
 - Remove spaces
@@ -196,6 +196,35 @@ Username được lấy từ `git config user.name` và processed:
 
 # Git config: "john.doe"
 # Processed: "johndoe"
+```
+
+## 🌐 Language Selection
+
+Smart Branch now supports multiple languages (English and Vietnamese). You can control the language in two ways:
+
+### 1. Environment Variable (Recommended)
+
+Set the `SB_LANG` environment variable to your preferred language code. This is the most reliable way to set the language permanently.
+
+```bash
+# For Vietnamese
+export SB_LANG=vi
+
+# For English
+export SB_LANG=en
+```
+
+Add this line to your shell configuration file (e.g., `~/.bashrc`, `~/.zshrc`) to make the setting persistent.
+
+### 2. First-Run Prompt
+
+If the `SB_LANG` environment variable is not set, `smart-branch` will ask you to choose a language the first time you run it. Your choice will be saved for future sessions.
+
+```
+Please select a language:
+[1] English
+[2] Vietnamese
+Select (1-2):
 ```
 
 ## 📋 Advanced Usage
@@ -372,7 +401,7 @@ sb feat 123 "implement user auth v2"
 
 ## 📚 Examples
 
-Xem thêm examples trong [examples directory](../examples/):
+See more examples in the [examples directory](../examples/):
 
 - [demo.sh](../examples/demo.sh) - Interactive demo
 - [Basic usage examples](../examples/BASIC_EXAMPLES.md)

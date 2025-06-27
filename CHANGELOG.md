@@ -33,12 +33,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - N/A
 
+## [2.0.0] - 2025-06-27
+
+### Added
+
+- Multi-language support (i18n) with English and Vietnamese.
+
+### Changed
+
+- Replaced separate installation scripts with a single `install.sh` script.
+- Refactored `smart-branch.sh` to support multiple languages.
+
 ## [1.0.0] - 2025-06-15
 
 ### Added
 
 - ✨ **Smart Branch Creator** - Unified Git branch creation tool
-- 🤖 **AI Mode** - Smart suggestions với Google Gemini API
+- 🤖 **AI Mode** - Smart suggestions with Google Gemini API
 - ⚡ **Traditional Mode** - Classic naming convention
 - 🌐 **Cross-platform support** - Windows, Linux, macOS
 - 📋 **Interactive mode** - User-friendly menu selection
@@ -108,5 +119,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/LuuKhoaHoc/smart-branch/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/LuuKhoaHoc/smart-branch/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/LuuKhoaHoc/smart-branch/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/LuuKhoaHoc/smart-branch/releases/tag/v1.0.0

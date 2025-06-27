@@ -1,370 +1,98 @@
-# Installation Guide 📦
+# 📦 Installation Guide
 
-Hướng dẫn chi tiết cài đặt Smart Branch trên các platform khác nhau.
+This guide describes how to install `smart-branch` using the automated installation script.
 
-## 📋 Requirements
+## 📋 System Requirements
 
-### Minimum Requirements
+- **Required:**
+  - `git`: To download the project's source code.
+- **Optional (The script will automatically install if missing):**
+  - `curl`: To communicate with APIs.
+  - `jq`: To process JSON data from APIs.
 
-- **Git** 2.0+ với `git config user.name` đã thiết lập
-- **Windows**: PowerShell 3.0+ (Windows 7+)
-- **Linux**: Bash 4.0+ hoặc Zsh
-- **macOS**: Bash 3.2+ hoặc Zsh (built-in)
+## 🚀 Quick Install
 
-### Optional Requirements (cho AI features)
+The installation process is handled by a single script, which automates most of the steps.
 
-- **curl** - để gọi API
-- **jq** - để parse JSON responses
-- **Internet connection** - cho Google Gemini API
+### Step 1: Download the Source Code
 
-## 🚀 Quick Installation
-
-### Option 1: Clone Repository
+Open your terminal and run the following command to clone the project repository:
 
 ```bash
-# Clone repository
 git clone https://github.com/LuuKhoaHoc/smart-branch.git
 cd smart-branch
-
-# Linux/macOS - Auto setup
-./src/setup-linux.sh
-
-# Windows - Manual setup (xem bên dưới)
 ```
 
-### Option 2: Download Release
+### Step 2: Run the Installation Script
+
+Execute the `install.sh` script to start the automated installation process:
 
 ```bash
-# Download latest release
-curl -L https://github.com/LuuKhoaHoc/smart-branch/releases/latest/download/smart-branch.zip -o smart-branch.zip
-unzip smart-branch.zip
-cd smart-branch
+bash install.sh
 ```
 
-## 🐧 Linux Installation
+#### What does the script do?
 
-### Automatic Setup
+- **Select language:** Asks whether you want to use the Vietnamese or English interface.
+- **Check and install dependencies:** Automatically checks for and installs `curl` and `jq` if they are not already on your system.
+- **Configure AI:**
+  - Creates a `config.json` file from the template.
+  - Asks for your Google Gemini `API Key` to configure the AI feature. You can skip this step and configure it later.
+
+### Step 3: Configure Alias (Manual)
+
+The installation script does not automatically create an alias. You need to add the `sb` alias to your shell configuration file to conveniently call `smart-branch` from anywhere.
+
+#### Linux & macOS
+
+1.  Open your shell's configuration file (e.g., `~/.bashrc`, `~/.zshrc`):
+
+    ```bash
+    # For Bash
+    nano ~/.bashrc
+
+    # For Zsh
+    nano ~/.zshrc
+    ```
+
+2.  Add the following line to the end of the file, replacing `/path/to/smart-branch` with the absolute path to the `smart-branch` directory you just cloned:
+
+    ```bash
+    alias sb='/path/to/smart-branch/sb'
+    ```
+
+    _Tip: You can get the absolute path by running the `pwd` command inside the `smart-branch` directory._
+
+3.  Reload the shell configuration:
+
+    ```bash
+    # For Bash
+    source ~/.bashrc
+
+    # For Zsh
+    source ~/.zshrc
+    ```
+
+#### Windows (Using Git Bash or WSL)
+
+On Windows, it is recommended to use Git Bash or Windows Subsystem for Linux (WSL). The installation process is similar to Linux.
+
+1.  Open Git Bash or a WSL terminal.
+2.  Follow **Step 1** and **Step 2**.
+3.  Configure the alias for Bash as instructed above (`~/.bashrc`).
+
+## ✅ Verify Installation
+
+After completion, check if `smart-branch` was installed correctly:
 
 ```bash
-# Clone repository
-git clone https://github.com/LuuKhoaHoc/smart-branch.git
-cd smart-branch
-
-# Run setup script
-./src/setup-linux.sh
-
-# Reload shell
-source ~/.bashrc  # or ~/.zshrc for Zsh users
-```
-
-### Manual Setup
-
-```bash
-# Make scripts executable
-chmod +x src/smart-branch.sh
-chmod +x sb
-
-# Add alias to shell config
-echo 'alias sb="/path/to/smart-branch/sb"' >> ~/.bashrc
-
-# For Zsh users
-echo 'alias sb="/path/to/smart-branch/sb"' >> ~/.zshrc
-
-# Reload shell
-source ~/.bashrc  # or source ~/.zshrc
-```
-
-### Distribution-specific Notes
-
-**Ubuntu/Debian:**
-
-```bash
-# Install dependencies
-sudo apt update
-sudo apt install curl jq git
-
-# Then run setup
-./src/setup-linux.sh
-```
-
-**Arch Linux:**
-
-```bash
-# Install dependencies
-sudo pacman -S curl jq git
-
-# Then run setup
-./src/setup-linux.sh
-```
-
-**CentOS/RHEL/Fedora:**
-
-```bash
-# Fedora
-sudo dnf install curl jq git
-
-# CentOS/RHEL
-sudo yum install curl jq git
-
-# Then run setup
-./src/setup-linux.sh
-```
-
-## 🍎 macOS Installation
-
-### Using Git (Recommended)
-
-```bash
-# Clone repository
-git clone https://github.com/LuuKhoaHoc/smart-branch.git
-cd smart-branch
-
-# Run setup
-./src/setup-linux.sh
-
-# Reload shell
-source ~/.zshrc  # or ~/.bash_profile
-```
-
-### Install Dependencies
-
-```bash
-# Install Homebrew if not already installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install dependencies
-brew install curl jq git
-```
-
-### Shell Configuration
-
-**Zsh (default trên macOS Catalina+):**
-
-```bash
-echo 'alias sb="/path/to/smart-branch/sb"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**Bash:**
-
-```bash
-echo 'alias sb="/path/to/smart-branch/sb"' >> ~/.bash_profile
-source ~/.bash_profile
-```
-
-## 🪟 Windows Installation
-
-### PowerShell Setup
-
-1. **Clone Repository:**
-
-```powershell
-# Clone using Git
-git clone https://github.com/LuuKhoaHoc/smart-branch.git
-cd smart-branch
-
-# Or download và extract ZIP file
-```
-
-2. **Set Execution Policy:**
-
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-3. **Create PowerShell Profile:**
-
-```powershell
-# Check if profile exists
-Test-Path $PROFILE
-
-# Create if not exists
-if (!(Test-Path $PROFILE)) { New-Item -Type File -Path $PROFILE -Force }
-
-# Edit profile
-notepad $PROFILE
-```
-
-4. **Add to Profile:**
-
-```powershell
-# Add these lines to your PowerShell profile
-Set-Alias -Name sb -Value smart_branch
-function smart_branch {
-    & "C:/path/to/smart-branch/src/smart-branch.ps1" $args
-}
-```
-
-5. **Reload Profile:**
-
-```powershell
-. $PROFILE
-```
-
-### Windows Subsystem for Linux (WSL)
-
-```bash
-# Inside WSL, follow Linux instructions
-git clone https://github.com/LuuKhoaHoc/smart-branch.git
-cd smart-branch
-./src/setup-linux.sh
-```
-
-### Git Bash
-
-```bash
-# Clone repository
-git clone https://github.com/LuuKhoaHoc/smart-branch.git
-cd smart-branch
-
-# Make executable
-chmod +x src/smart-branch.sh
-chmod +x sb
-
-# Add alias to ~/.bashrc
-echo 'alias sb="/path/to/smart-branch/sb"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-## 🔧 Configuration
-
-### AI Setup (Optional)
-
-1. **Get Google Gemini API Key:**
-
-   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - Create new API key (free tier available)
-
-2. **Configure Smart Branch:**
-
-```bash
-# Copy template
-cp config/config.json.template config.json
-
-# Edit configuration
-nano config.json  # or your preferred editor
-```
-
-3. **Update API Key:**
-
-```json
-{
-  "ai_provider": "gemini",
-  "api_key": "YOUR_GEMINI_API_KEY_HERE",
-  "model": "gemini-2.0-flash-exp",
-  "enabled": true
-}
-```
-
-### Git Configuration
-
-```bash
-# Set git user info if not already set
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
-```
-
-## ✅ Verification
-
-### Test Installation
-
-```bash
-# Test basic functionality
 sb --help
-
-# Test interactive mode
-sb
-
-# Test command line mode
-sb feat test "test installation"
 ```
 
-### Troubleshooting
+If you see the help message, the installation was successful!
 
-**Command not found:**
+## 🗑️ Uninstall
 
-```bash
-# Check if alias is set
-which sb
-alias | grep sb
-
-# Re-run setup if needed
-source ~/.bashrc  # or appropriate shell config
-```
-
-**Permission denied:**
-
-```bash
-# Fix permissions (Linux/macOS)
-chmod +x src/smart-branch.sh
-chmod +x sb
-```
-
-**PowerShell execution policy (Windows):**
-
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-## 🔄 Updates
-
-### Git-based Installation
-
-```bash
-cd /path/to/smart-branch
-git pull origin main
-
-# Re-run setup if needed
-./src/setup-linux.sh
-```
-
-### Manual Update
-
-1. Download latest release
-2. Replace existing files
-3. Re-run setup process
-
-## 🗑️ Uninstallation
-
-### Remove Alias
-
-```bash
-# Edit shell config
-nano ~/.bashrc  # or ~/.zshrc
-
-# Remove line:
-# alias sb="/path/to/smart-branch/sb"
-
-# Reload shell
-source ~/.bashrc
-```
-
-### Remove Files
-
-```bash
-rm -rf /path/to/smart-branch
-```
-
-### Windows PowerShell
-
-```powershell
-# Edit PowerShell profile
-notepad $PROFILE
-
-# Remove smart_branch function và alias
-# Delete smart-branch folder
-```
-
-## 🆘 Getting Help
-
-Nếu gặp vấn đề trong quá trình cài đặt:
-
-1. Check [Troubleshooting Guide](TROUBLESHOOTING.md)
-2. Search [existing issues](https://github.com/LuuKhoaHoc/smart-branch/issues)
-3. Create [new issue](https://github.com/LuuKhoaHoc/smart-branch/issues/new)
-
-## 📚 Next Steps
-
-- Read [Usage Guide](USAGE.md)
-- Explore [Examples](../examples/)
-- Configure [AI Integration](AI_SETUP.md)
+1.  Remove the `sb` alias from your shell configuration file (`~/.bashrc` or `~/.zshrc`).
+2.  Reload the shell configuration (`source ~/.bashrc` or `source ~/.zshrc`).
+3.  Delete the project directory: `rm -rf /path/to/smart-branch`.

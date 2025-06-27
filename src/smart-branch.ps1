@@ -95,7 +95,7 @@ function Show-ModeSelection {
 # Function to validate prefix
 function Test-ValidPrefix {
     param([string]$Prefix)
-    $ValidPrefixes = @("feat", "bug", "hotfix", "sync", "refactor", "docs", "test", "chore")
+    $ValidPrefixes = @("feat", "fix", "hotfix", "docs", "style", "refactor", "test", "chore")
     return $ValidPrefixes -contains $Prefix
 }
 
@@ -183,22 +183,15 @@ feat/username-123_create-auth-module
     }
 
     $prompt = @"
-Bạn là chuyên gia Git branch naming. Dựa vào thông tin sau:
+Bạn là AI chuyên gia đặt tên nhánh Git. Hãy tạo CHÍNH XÁC 5 tên nhánh phù hợp với thông tin sau, mỗi dòng 1 tên, KHÔNG thêm bất kỳ giải thích, text hoặc ký tự nào khác ngoài 5 tên nhánh:
 - Prefix: $Prefix
 $ticketInfo
 - Mô tả task: $Description
 - Username: $Username
 
-Tạo CHÍNH XÁC 3 tên nhánh theo format: $branchFormat
+Định dạng: $branchFormat
 
-Yêu cầu:
-- Mô tả phần description ngắn gọn, rõ ràng, thể hiện đúng mục đích
-- Sử dụng kebab-case cho description
-- Tối đa 50 ký tự cho toàn bộ tên nhánh
-- Mỗi option phải khác nhau về cách diễn đạt
-- Chỉ trả về 3 dòng, mỗi dòng 1 tên nhánh, không có text khác
-
-Ví dụ format:
+Ví dụ:
 $exampleFormats
 "@
 
@@ -231,14 +224,14 @@ $exampleFormats
             $suggestions = $response.candidates[0].content.parts[0].text.Trim().Split("`n") |
                           Where-Object { $_ -and $_.Trim() -ne "" } |
                           ForEach-Object { $_.Trim() } |
-                          Select-Object -First 3
+                          Select-Object -First 5
 
-            if ($suggestions.Count -eq 3) {
-                return $suggestions
-            } else {
-                Write-Host "⚠️  AI trả về số lượng gợi ý không đúng. Fallback về tên truyền thống." -ForegroundColor $Colors.Yellow
-                return @()
-            }
+           if ($suggestions.Count -eq 5) {
+               return $suggestions
+           } else {
+               Write-Host "⚠️  AI trả về số lượng gợi ý không đúng. Fallback về tên truyền thống." -ForegroundColor $Colors.Yellow
+               return @()
+           }
         } else {
             Write-Host "⚠️  AI không trả về kết quả hợp lệ. Fallback về tên truyền thống." -ForegroundColor $Colors.Yellow
             return @()
@@ -281,12 +274,14 @@ function Select-BranchOption {
     Write-Host "  [$index] Nhập tên nhánh khác" -ForegroundColor $Colors.Cyan
     Write-Host ""
 
+    $maxOption = $index
+
     do {
-        $choice = Read-Host "Lựa chọn (1-$index)"
+        $choice = Read-Host "Lựa chọn (1-$maxOption)"
         if ($choice -match '^\d+$') {
             $choiceNum = [int]$choice
-            if ($choiceNum -ge 1 -and $choiceNum -le $index) {
-                if ($choiceNum -eq $index) {
+            if ($choiceNum -ge 1 -and $choiceNum -le $maxOption) {
+                if ($choiceNum -eq $maxOption) {
                     # Manual input
                     do {
                         $customName = Read-Host "Nhập tên nhánh"
@@ -301,7 +296,7 @@ function Select-BranchOption {
                 }
             }
         }
-        Write-Host "❌ Lựa chọn không hợp lệ. Vui lòng chọn từ 1 đến $index" -ForegroundColor $Colors.Red
+        Write-Host "❌ Lựa chọn không hợp lệ. Vui lòng chọn từ 1 đến $maxOption" -ForegroundColor $Colors.Red
     } while ($true)
 }
 
@@ -311,9 +306,9 @@ function Get-InteractiveInput {
 
     # Get prefix
     do {
-        $Prefix = Read-Host "Prefix (feat/bug/hotfix/sync/refactor/docs/test/chore)"
+        $Prefix = Read-Host "Prefix (feat/fix/hotfix/docs/style/refactor/test/chore)"
         if (-not (Test-ValidPrefix $Prefix)) {
-            Write-Host "❌ Prefix không hợp lệ. Vui lòng chọn: feat, bug, hotfix, sync, refactor, docs, test, chore" -ForegroundColor $Colors.Red
+            Write-Host "❌ Prefix không hợp lệ. Vui lòng chọn: feat, fix, hotfix, docs, style, refactor, test, chore" -ForegroundColor $Colors.Red
         }
     } while (-not (Test-ValidPrefix $Prefix))
 
@@ -366,7 +361,7 @@ function Invoke-AIMode {
     if ($Config -and $Config.enabled) {
         $aiSuggestions = Get-AIBranchSuggestions -Prefix $Prefix -TicketNumber $TicketNumber -Description $Description -Username $Username -Config $Config
 
-        if ($aiSuggestions.Count -eq 3) {
+        if ($aiSuggestions.Count -eq 5) {
             $selectedBranchName = Select-BranchOption -Suggestions $aiSuggestions -TraditionalName $traditionalBranchName
         } else {
             Write-Host "💡 Sử dụng tên nhánh truyền thống: $traditionalBranchName" -ForegroundColor $Colors.Yellow
@@ -466,6 +461,21 @@ function Main {
     Write-Host "👤 Git username: " -ForegroundColor $Colors.Green -NoNewline
     Write-Host $username
     Write-Host ""
+
+    # Language selection (đồng bộ với bash)
+    if (-not $env:SB_LANG) {
+        Write-Host "Please select a language / Vui lòng chọn ngôn ngữ:"
+        Write-Host "  [1] English"
+        Write-Host "  [2] Vietnamese"
+        do {
+            $lang_choice = Read-Host "Choice (1-2)"
+            if ($lang_choice -eq "1") { $LANG = "en"; break }
+            elseif ($lang_choice -eq "2") { $LANG = "vi"; break }
+            else { Write-Host "Invalid choice. Please enter 1 or 2." }
+        } while ($true)
+    } else {
+        $LANG = $env:SB_LANG
+    }
 
     # Auto-detect command line arguments format
     if (-not [string]::IsNullOrEmpty($Prefix) -and -not [string]::IsNullOrEmpty($TicketNumber)) {
