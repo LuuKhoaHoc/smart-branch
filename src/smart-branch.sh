@@ -181,16 +181,27 @@ get_ai_suggestions() {
         ticket_info="- Ticket: $ticket"
     fi
 
-    local prompt="Bạn là AI chuyên gia đặt tên nhánh Git. Hãy tạo CHÍNH XÁC 5 tên nhánh phù hợp với thông tin sau, mỗi dòng 1 tên, KHÔNG thêm bất kỳ giải thích, text hoặc ký tự nào khác ngoài 5 tên nhánh:
+local prompt="Bạn là AI chuyên gia tạo tên nhánh Git, tuân thủ nghiêm ngặt các quy tắc đặt tên nhánh được cung cấp. Tạo CHÍNH XÁC 5 tên nhánh Git, mỗi tên trên một dòng riêng biệt. KHÔNG bao gồm bất kỳ văn bản, giải thích hoặc ký tự bổ sung nào khác ngoài 5 tên nhánh được yêu cầu.
+
+Thông tin cần thiết để tạo tên nhánh:
 - Prefix: $prefix
 $ticket_info
 - Mô tả task: $description
 - Username: $username
 
-Định dạng: $branch_format
+Định dạng bắt buộc cho tên nhánh: $branch_format
 
-Ví dụ:
-$example_formats"
+Ví dụ về định dạng mong muốn:
+$example_formats
+
+Lưu ý quan trọng:
+- Đảm bảo tên nhánh ngắn gọn, súc tích và dễ hiểu.
+- Sử dụng dấu gạch ngang (-) thay vì dấu gạch dưới (_) để phân tách các từ trong mô tả, trừ khi định dạng yêu cầu khác.
+- Chuyển đổi mô tả task sang dạng 'kebab-case' (ví dụ: 'add-user-authentication' thay vì 'add user authentication').
+- Tên nhánh phải hoàn toàn bằng chữ thường.
+- Tránh các ký tự đặc biệt hoặc khoảng trắng không cần thiết.
+- Mỗi tên nhánh phải là duy nhất và phản ánh rõ ràng nội dung của task.
+"
 
     local json_payload
     json_payload=$(printf '{"contents":[{"parts":[{"text":"%s"}]}],"generationConfig":{"temperature":%s,"maxOutputTokens":%s}}' "$prompt" "${temperature:-0.7}" "${max_tokens:-150}")
