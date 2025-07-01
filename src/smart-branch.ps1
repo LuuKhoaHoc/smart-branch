@@ -120,7 +120,7 @@ function Get-GitUsername {
 function Get-SanitizedDescription {
     param([string]$Description)
     # Convert to lowercase, replace spaces and special chars with hyphens
-    $sanitized = $Description.ToLower() -replace '[^a-z0-9]', '-'
+    $sanitized = $Description.ToLower() -replace '[^a-z0-9_-]', '-'
     $sanitized = $sanitized -replace '-+', '-'
     $sanitized = $sanitized -replace '^-|-$', ''
     return $sanitized

@@ -216,7 +216,7 @@ $example_formats"
     fi
 
     if [[ -n "$suggestions" ]]; then
-        echo "$suggestions" | grep -E '^[a-z]+/[a-z0-9_-]+$' | head -5 > /tmp/ai_suggestions.txt
+      echo "$suggestions" | grep -E '^[a-z0-9_]+/[a-z0-9_-]+$' | head -5 > /tmp/ai_suggestions.txt
         local count=$(wc -l < /tmp/ai_suggestions.txt)
         if [[ $count -eq 5 ]]; then
             return 0
